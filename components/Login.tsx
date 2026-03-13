@@ -13,6 +13,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRegister }) => {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,19 +25,21 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRegister }) => {
     try {
       if (isRegisterMode) {
         const success = await onRegister(email, password, name);
-        if (!success) {
+        if (success) {
+          setSuccessMessage('Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro antes de entrar.');
+          setIsRegisterMode(false);
+        } else {
           setError('Ocorreu um erro ao criar sua conta.');
-          setIsLoading(false);
         }
       } else {
         const success = await onLogin(email, password);
         if (!success) {
           setError('Email ou senha inválidos.');
-          setIsLoading(false);
         }
       }
     } catch (err: any) {
       setError(err.message || 'Erro inesperado.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -62,6 +65,12 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRegister }) => {
           {error && (
             <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg border border-red-100 dark:border-red-800 text-center animate-pulse">
               {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-sm p-3 rounded-lg border border-green-100 dark:border-green-800 text-center animate-fade-in">
+              {successMessage}
             </div>
           )}
 
@@ -142,6 +151,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onRegister }) => {
               onClick={() => {
                 setIsRegisterMode(!isRegisterMode);
                 setError('');
+                setSuccessMessage('');
               }}
               className="text-indigo-600 dark:text-indigo-400 text-sm font-medium hover:underline"
             >
